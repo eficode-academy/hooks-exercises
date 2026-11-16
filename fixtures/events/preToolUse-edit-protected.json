@@ -1,0 +1,11 @@
+{
+  "sessionId": "exercise-session",
+  "timestamp": 1794492002000,
+  "cwd": ".",
+  "toolName": "edit",
+  "toolArgs": {
+    "path": "demo-app/config/production.json",
+    "old_str": "DO-NOT-LOG",
+    "new_str": "synthetic-only"
+  }
+}

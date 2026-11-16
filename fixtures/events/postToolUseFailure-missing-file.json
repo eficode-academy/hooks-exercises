@@ -1,0 +1,10 @@
+{
+  "sessionId": "exercise-session",
+  "timestamp": 1794492004000,
+  "cwd": ".",
+  "toolName": "view",
+  "toolArgs": {
+    "path": "demo-app/src/no-such-file.js"
+  },
+  "error": "Path demo-app/src/no-such-file.js does not exist. Please provide a valid path. DO-NOT-LOG synthetic marker."
+}

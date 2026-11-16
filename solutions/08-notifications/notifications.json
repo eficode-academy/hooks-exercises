@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": "bash scripts/08-notifications/notify.sh",
+        "powershell": "pwsh -NoProfile -File scripts/08-notifications/notify.ps1",
+        "timeoutSec": 5
+      }
+    ]
+  }
+}
