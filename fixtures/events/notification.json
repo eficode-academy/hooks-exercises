@@ -1,0 +1,8 @@
+{
+  "sessionId": "exercise-session",
+  "timestamp": 1794492010000,
+  "cwd": ".",
+  "hook_event_name": "Notification",
+  "message": "DO-NOT-LOG synthetic notification",
+  "notification_type": "permission_prompt"
+}

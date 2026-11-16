@@ -1,0 +1,11 @@
+{
+  "sessionId": "exercise-session",
+  "timestamp": 1794492005000,
+  "cwd": ".",
+  "error": {
+    "message": "DO-NOT-LOG synthetic error",
+    "name": "SyntheticToolError"
+  },
+  "errorContext": "tool_execution",
+  "recoverable": true
+}

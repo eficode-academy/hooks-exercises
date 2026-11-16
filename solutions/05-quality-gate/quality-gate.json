@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "hooks": {
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": "bash scripts/05-quality-gate/gate.sh",
+        "powershell": "pwsh -NoProfile -File scripts/05-quality-gate/gate.ps1",
+        "timeoutSec": 60,
+        "env": {
+          "DEMO_DIR": "demo-app",
+          "CHECK_STEPS": "format:check;lint;test",
+          "CHECK_TIMEOUT_SEC": "10",
+          "HOOK_STATE_DIR": ".hooks-state"
+        }
+      }
+    ]
+  }
+}

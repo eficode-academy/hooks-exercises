@@ -1,0 +1,11 @@
+{
+  "sessionId": "exercise-session",
+  "timestamp": 1794492002000,
+  "cwd": ".",
+  "toolName": "edit",
+  "toolArgs": {
+    "path": "demo-app/src/cart.js",
+    "old_str": "DO-NOT-LOG",
+    "new_str": "synthetic-only"
+  }
+}

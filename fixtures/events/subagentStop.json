@@ -1,0 +1,11 @@
+{
+  "sessionId": "exercise-session",
+  "timestamp": 1794492009000,
+  "cwd": ".",
+  "agentId": "exercise-agent",
+  "agentType": "explore",
+  "agentName": "explore",
+  "response": "DO-NOT-LOG synthetic response",
+  "transcriptPath": "DO-NOT-READ",
+  "stopReason": "end_turn"
+}

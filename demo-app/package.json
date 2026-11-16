@@ -1,0 +1,17 @@
+{
+  "name": "copilot-hooks-cart-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "lint": "eslint src test",
+    "format": "prettier --write src test config",
+    "format:check": "prettier --check src test config",
+    "check": "npm run format:check && npm run lint && npm test"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "prettier": "^3.6.2"
+  }
+}

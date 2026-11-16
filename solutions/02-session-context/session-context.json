@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [{"type":"command","bash":"bash scripts/02-session-context/briefing.sh sessionStart","powershell":"pwsh -NoProfile -File scripts/02-session-context/briefing.ps1 sessionStart","timeoutSec":5}],
+    "subagentStart": [{"type":"command","bash":"bash scripts/02-session-context/briefing.sh subagentStart","powershell":"pwsh -NoProfile -File scripts/02-session-context/briefing.ps1 subagentStart","timeoutSec":5}]
+  }
+}

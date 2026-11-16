@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "hooks": {
+    "preCompact": [{"type":"command","bash":"bash scripts/07-session-recovery/checkpoint.sh preCompact","powershell":"pwsh -NoProfile -File scripts/07-session-recovery/checkpoint.ps1 preCompact","timeoutSec":5}],
+    "sessionStart": [{"type":"command","bash":"bash scripts/07-session-recovery/checkpoint.sh sessionStart","powershell":"pwsh -NoProfile -File scripts/07-session-recovery/checkpoint.ps1 sessionStart","timeoutSec":5}]
+  }
+}

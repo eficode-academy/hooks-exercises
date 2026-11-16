@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "hooks": {
+    "postToolUseFailure": [{"type":"command","bash":"bash scripts/06-failure-recovery/recover.sh postToolUseFailure","powershell":"pwsh -NoProfile -File scripts/06-failure-recovery/recover.ps1 postToolUseFailure","timeoutSec":5}],
+    "postToolUse": [{"type":"command","bash":"bash scripts/06-failure-recovery/recover.sh postToolUse","powershell":"pwsh -NoProfile -File scripts/06-failure-recovery/recover.ps1 postToolUse","timeoutSec":5}],
+    "errorOccurred": [{"type":"command","bash":"bash scripts/06-failure-recovery/recover.sh errorOccurred","powershell":"pwsh -NoProfile -File scripts/06-failure-recovery/recover.ps1 errorOccurred","timeoutSec":5}]
+  }
+}
