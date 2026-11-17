@@ -1,0 +1,108 @@
+{
+  "id": "copilot-hooks-exercises",
+  "title": "GitHub Copilot hooks",
+  "description": "Configure, test, and observe GitHub Copilot hooks",
+  "overview": {
+    "id": "overview",
+    "title": "Overview",
+    "file": "README.md"
+  },
+  "lessons": [
+    {
+      "id": "setup",
+      "title": "00 · Setup and hook anatomy",
+      "file": "exercises/00-setup.md",
+      "minutes": 15
+    },
+    {
+      "id": "activity-log",
+      "title": "01 · Activity log",
+      "file": "exercises/01-activity-log.md",
+      "minutes": 15
+    },
+    {
+      "id": "session-context",
+      "title": "02 · Session context",
+      "file": "exercises/02-session-context.md",
+      "minutes": 10
+    },
+    {
+      "id": "guardrails",
+      "title": "03 · Narrow tool guardrails",
+      "file": "exercises/03-guardrails.md",
+      "minutes": 20
+    },
+    {
+      "id": "format-lint",
+      "title": "04 · Format and lint after edits",
+      "file": "exercises/04-format-lint.md",
+      "minutes": 15
+    },
+    {
+      "id": "quality-gate",
+      "title": "05 · Finish-time quality gate",
+      "file": "exercises/05-quality-gate.md",
+      "minutes": 20
+    },
+    {
+      "id": "failure-recovery",
+      "title": "06 · Recovery after failed tools",
+      "file": "exercises/06-failure-recovery.md",
+      "minutes": 15
+    },
+    {
+      "id": "session-recovery",
+      "title": "07 · Small checkpoints and session recovery",
+      "file": "exercises/07-session-recovery.md",
+      "minutes": 10
+    },
+    {
+      "id": "personal-hooks",
+      "title": "Extra · Personal hooks and portability",
+      "file": "exercises/extras/personal-hooks.md",
+      "minutes": 10
+    },
+    {
+      "id": "notifications",
+      "title": "Extra · Completion cues and notifications",
+      "file": "exercises/extras/notifications.md",
+      "minutes": 10
+    },
+    {
+      "id": "agent-hooks",
+      "title": "Extra · Agent-scoped hooks",
+      "file": "exercises/extras/agent-scoped-hooks.md",
+      "minutes": 10
+    },
+    {
+      "id": "secret-guard",
+      "title": "Extra · A limited secret-check experiment",
+      "file": "exercises/extras/secret-guard.md",
+      "minutes": 10
+    },
+    {
+      "id": "events",
+      "title": "Reference · Events cheat sheet",
+      "file": "docs/events.md",
+      "minutes": 5
+    },
+    {
+      "id": "troubleshooting",
+      "title": "Reference · Troubleshooting",
+      "file": "docs/troubleshooting.md",
+      "minutes": 10
+    },
+    {
+      "id": "compatibility",
+      "title": "Reference · Compatibility and verification",
+      "file": "docs/compatibility.md",
+      "minutes": 10
+    },
+    {
+      "id": "sources",
+      "title": "Reference · Sources and attribution",
+      "file": "docs/sources.md",
+      "minutes": 5
+    }
+  ]
+}
