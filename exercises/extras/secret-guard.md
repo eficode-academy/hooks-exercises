@@ -26,8 +26,9 @@ to the supplied guard using exercise 03's command pattern.
 | “Using a direct file edit, change the dummy marker in demo-app/config/secret-demo.json. Stop if denied.” | Matching `preToolUse`; denial only for supported tools/shapes |
 | “Read demo-app/.env.example without editing it.” | Read remains outside the edit matcher; no secret-protection claim |
 
-Use the activity log to confirm matching and preserve the harmless file if the
-guard did not run. Do not ask for bypasses or destructive operations.
+If configured, use the optional activity log to confirm matching; otherwise
+check available hook diagnostics. Preserve the harmless file if the guard did
+not run. Do not ask for bypasses or destructive operations.
 
 ## Configuration-only stretch / disable / reuse
 

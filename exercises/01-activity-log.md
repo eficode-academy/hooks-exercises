@@ -3,7 +3,8 @@
 ## Goal
 
 See which hooks are called, in what order, and with which minimal metadata.
-Keep this observer enabled while completing the remaining exercises.
+This optional observer is useful alongside other topics, but they do not depend
+on it.
 
 ## Events
 
@@ -92,6 +93,7 @@ Avoid registering duplicate writes to the same log accidentally.
 
 ## Reuse / disable
 
-Keep this configuration for the rest of the path. For a real project, select only
-events you need and choose retention/access controls for local metadata.
+Optionally keep this configuration enabled while exploring other topics to
+observe their live events. For a real project, select only events you need and
+choose retention/access controls for local metadata.
 Disable by moving `activity-log.json` out of `.github/hooks/` and restarting.

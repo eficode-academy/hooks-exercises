@@ -26,6 +26,7 @@ jobs:
       - name: Install demo tools
         run: npm ci --prefix demo-app --no-audit --no-fund
       - name: Validate demo and example configs
+        shell: bash
         run: |
           npm --prefix demo-app run check
           node tests/validate-configs.mjs
