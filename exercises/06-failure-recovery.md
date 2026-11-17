@@ -77,7 +77,8 @@ Fixture state belongs to its synthetic session.
 | “Read demo-app/package.json and identify the correct test script.” | Successful `postToolUse` if used | Completion resets the session's failure count |
 | “Run npm --prefix demo-app test once.” | Successful tool event | Tests provide an actual recovery result |
 
-Keep activity logging on. A failure hook cannot make an unavailable tool exist.
+If configured, use the optional activity log to observe the failure events. A
+failure hook cannot make an unavailable tool exist.
 If the runtime emits only `postToolUse`, record that distinction and do not
 claim the failure handler ran.
 

@@ -5,12 +5,13 @@ not shell scripts. All Bash and PowerShell helpers are supplied and complete.
 Your tasks are choosing events, commands, matchers, environment options, and
 timeouts, then proving that your configuration does what you intended.
 
-Work independently in a disposable checkout. Allow about **two hours** for the
-core path, excluding installation. No hooks are enabled when you open this
+Work independently in a disposable checkout. Allow about **two hours** to
+complete setup and all seven topics, excluding installation; choose only the
+topics useful to you if you prefer. No hooks are enabled when you open this
 repository: configurations in `solutions/` are reference answers, not startup
 hooks.
 
-## Learning path
+## Exercises: choose a topic
 
 | Exercise | Time | Configuration task |
 | --- | ---: | --- |
@@ -23,8 +24,13 @@ hooks.
 | [06 · Failure recovery](exercises/06-failure-recovery.md) | 15 min | Give the agent recovery guidance after failed tool calls |
 | [07 · Session recovery](exercises/07-session-recovery.md) | 10 min | Save a small checkpoint and supply it on resume |
 
-There are seven hook topics (01–07). Start at setup and keep the activity log
-enabled throughout.
+Setup (00) is the shared prerequisite; the numbers identify topics, not a
+required order. After setup, choose any of the seven hook topics (01–07)—you
+do not need to complete them all, and no topic requires completing another.
+For an introduction to event delivery and diagnostics, start with the optional
+activity log (01); otherwise, choose the topic that matches what you want to
+explore. Session recovery (07) can optionally include the quality gate's last
+check result (05) when both configurations use the same state directory.
 Each exercise includes offline fixture calls, suggested live prompts, expected
 observations, a configuration-only stretch, and instructions to disable/reuse it.
 Write each JSON file from blank before comparing with `solutions/NN-name/name.json`.

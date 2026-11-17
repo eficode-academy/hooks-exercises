@@ -109,7 +109,9 @@ This runner parses the chosen JSON, applies its environment options and
 matchers, resolves fixture `cwd: "."`, and executes **hook helpers only**. It
 never executes the Copilot tool described in a fixture.
 
-In every later exercise, test **your active file**, not just the solution:
+For each topic you choose, test **your active file**, not just the solution.
+For example, to test the activity-log topic (use your chosen topic's file and
+event if different):
 
 ```text
 node tests/validate-configs.mjs .github/hooks/activity-log.json
@@ -129,8 +131,9 @@ supplied-script fixture suite, not a substitute for testing your own JSON.
 | Start a new session from the repository root | `sessionStart` | A configured handler runs; setup alone enables nothing |
 | “Read demo-app/src/cart.js and explain the pricing API.” | `userPromptSubmitted`; `preToolUse` / `postToolUse` **if a tool is used** | Normal tool permissions still apply |
 
-Prompts do not guarantee tool calls. The activity-log exercise provides the
-evidence; do not treat a model's answer as proof that a hook ran.
+Prompts do not guarantee tool calls. Configure the event handler you want to
+test; the optional activity-log exercise provides a convenient observer. Do
+not treat a model's answer as proof that a hook ran.
 
 ## Configuration-only stretch
 
@@ -144,4 +147,6 @@ Enable only files you wrote/reviewed. Start a fresh session after changing hook
 registration. To disable a recipe, move **its JSON** out of `.github/hooks/`
 (or remove only that file), then start a fresh session. Leave unrelated hooks
 alone. Helpers and solutions outside that directory do not activate themselves.
-Continue to [01 · Activity log](01-activity-log.md).
+After setup, choose any topic from [01 · Activity log](01-activity-log.md)
+through [07 · Session recovery](07-session-recovery.md). The activity log is a
+useful optional first topic for observing live event delivery.

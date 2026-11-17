@@ -102,7 +102,7 @@ interrupt the experiment, remove only the sample you created, not existing work.
 | Prompt | Event | Expected outcome |
 | --- | --- | --- |
 | “Add a test for calculateTotal with nonzero shipping, using a direct file edit. Do not run formatting yet.” | Matching `postToolUse` if used | Supported changed test is formatted; remaining lint issues become feedback |
-| “Add a well-named test for a percentage discount, then run the demo checks.” | Edit post-tool, then shell events | Tests/lint/format can verify the rule; activity log separates edit feedback from shell checks |
+| “Add a well-named test for a percentage discount, then run the demo checks.” | Edit post-tool, then shell events | Tests/lint/format can verify the rule; the optional activity log can distinguish edit feedback from shell checks |
 | “Read demo-app/src/cart.js without editing it.” | Read-tool post event if used | Edit-only matcher does not run the formatter |
 
 Copilot may already produce formatted code, so no diff is not failure. If its
@@ -118,5 +118,5 @@ helper to change these options.
 ## Reuse / disable
 
 Keep format-on-edit only where automatic changes are appropriate. Broader
-repository checks belong in the next exercise and CI. Remove
+repository checks belong in the quality-gate topic and CI. Remove
 `format-lint.json` and restart to disable.

@@ -59,11 +59,11 @@ matches. The last call is a **no-trigger control**: `postToolUse` should report
 
 | Action/prompt | Event | Expected outcome |
 | --- | --- | --- |
-| Start a fresh session, then ask “Which demo checks should we run before finishing?” | `sessionStart` | Activity log confirms delivery; context identifies demo checks |
+| Start a fresh session, then ask “Which demo checks should we run before finishing?” | `sessionStart` | If configured, the activity log confirms delivery; context identifies demo checks |
 | “Use an explore subagent to summarize the demo tests, if supported.” | `subagentStart` if emitted | Subagent briefing only if the runtime supports/emits the event |
 
 An answer that happens to name the commands is not sufficient proof; compare
-the activity log and hook diagnostics.
+hook diagnostics and, if configured, the optional activity log.
 
 ## Configuration-only stretch
 
