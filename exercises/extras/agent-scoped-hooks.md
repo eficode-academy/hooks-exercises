@@ -1,16 +1,17 @@
 # Extra · Agent-scoped hooks
 
-## Goal / events
+**Stretch · about 10 minutes**
 
-Explore a hook that belongs to a specific custom agent instead of every
-repository session. Confirm your client supports agent frontmatter hooks first.
+## Problem
 
-## Read / task
+A "reviewer" agent should be read-only, and you want an audit trail for that
+agent only, not for every developer session in the repository.
 
-Read the current agent-hook documentation linked from [sources](../../docs/sources.md).
-The following illustrates the **frontmatter placement**, not a new
-repository-wide JSON file. Adapt the file location/schema to your verified
-client rather than enabling it blindly:
+## Task
+
+Check [sources](../../docs/sources.md) that your client supports hooks in a custom
+agent's frontmatter, then adapt this example. It reuses the activity-log helper;
+no new script is needed.
 
 ```markdown
 ---
@@ -21,8 +22,6 @@ hooks:
     - type: command
       command: bash scripts/01-activity-log/log.sh preToolUse
       windows: pwsh -NoProfile -File scripts/01-activity-log/log.ps1 preToolUse
-      linux: bash scripts/01-activity-log/log.sh preToolUse
-      osx: bash scripts/01-activity-log/log.sh preToolUse
       env:
         HOOK_LOG_DIR: .hooks-state/agent-review
       timeoutSec: 5
@@ -30,28 +29,17 @@ hooks:
 Review the demo pricing code without changing files.
 ```
 
-Agent frontmatter uses `command` as a fallback and `windows` / `linux` / `osx`
-platform overrides, unlike repository JSON's `bash` / `powershell` fields.
-This reuses the supplied observer. Do not invent a separate script. Confirm
-whether your client's agent-scoped format uses the same native event names
-before trying this example; unsupported schema is a compatibility finding.
+Agent frontmatter uses `command` plus `windows` / `linux` / `osx` overrides,
+unlike repository JSON's `bash` / `powershell`.
 
-## Offline / live check
+## Check
 
-Test the observer via your exercise-01 JSON and `tests/try-hook.mjs` first.
-The JSON validator for `.github/hooks/` does not validate agent frontmatter.
+Test the helper with your exercise-01 JSON and `try-hook` first. Live: select the
+custom agent and ask it to read `demo-app/src/cart.js`; records should appear in
+`.hooks-state/agent-review/`. Use a different agent for the same read and expect
+no record. Unsupported frontmatter is a compatibility finding, not a failure.
 
-| Prompt/action | Event / expected artifact |
-| --- | --- |
-| Select the custom agent and ask it to read demo-app/src/cart.js | Tool-event metadata in the agent-specific directory if scope is supported |
-| Use a different agent for the same read | No record from this agent-scoped registration |
+## Stretch
 
-Keep the repository activity observer separate, so its records are not mistaken
-for this agent's output.
-
-## Configuration-only stretch / disable / reuse
-
-Narrow the observer to an actual tool name after verifying it. Remove the
-frontmatter hook block and start a fresh agent session to disable. Reuse scoped
-hooks for agent-specific feedback, not as a security boundary or a substitute
-for agent permissions.
+Narrow the hook to one tool name once you have seen the real names in the log.
+To disable: remove the `hooks` block from the agent file.

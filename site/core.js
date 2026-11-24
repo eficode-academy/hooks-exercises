@@ -13,6 +13,7 @@ export function validateConfig(config) {
       throw new Error(`Set a unique relative Markdown file for ${page.id}; do not use parent paths or URLs.`);
     }
     if (page !== config.overview && (!Number.isInteger(page.minutes) || page.minutes <= 0)) throw new Error(`Set positive whole minutes for ${page.id}.`);
+    if (page.level !== undefined && !["core", "stretch"].includes(page.level)) throw new Error(`Set level to core or stretch for ${page.id}.`);
     ids.add(page.id);
     files.add(page.file);
   }

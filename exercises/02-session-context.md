@@ -1,77 +1,56 @@
 # 02 · Session context
 
-## Goal
+**Core · about 10 minutes**
 
-Give an agent useful, fresh project context without depending on a remembered
-prompt or copying project instructions into a script.
+## Problem
 
-## Events
+Your bank has house rules: money is integer cents, never touch production
+config, never print secrets. Developers paste them into prompts when they
+remember to. A `sessionStart` hook gives every session (and every subagent) the
+same briefing, plus fresh facts such as the branch and recent commits.
 
-`sessionStart`; optionally `subagentStart`.
+## Task
 
-## Read the supplied script / environment options
+Write `.github/hooks/session-context.json` from a blank file.
 
-Read `scripts/02-session-context/briefing.sh` or `briefing.ps1`.
-It accepts `sessionStart` or `subagentStart`. `DEMO_DIR` defaults to `demo-app`.
-It supplies known demo check commands and read-only Git status/recent commits as
-`additionalContext`. It does not expose secrets or load arbitrary instructions.
-Filenames and commit text are untrusted data, not commands or policy.
+1. Register `sessionStart` with
+   `bash scripts/02-session-context/briefing.sh sessionStart` and
+   `pwsh -NoProfile -File scripts/02-session-context/briefing.ps1 sessionStart`.
+2. Add `"env": { "DEMO_DIR": "demo-app" }` and `"timeoutSec": 5`.
+3. Register `subagentStart` the same way, passing `subagentStart` as the argument.
 
-## Task: write `.github/hooks/session-context.json` yourself
+Skim `scripts/02-session-context/briefing.sh`: the event comes in on stdin (it is
+not needed), the house rules and `git` facts go out as `additionalContext`.
+`DEMO_DIR` only changes the folder named in the rules.
+Compare with `solutions/02-session-context/session-context.json` afterwards.
 
-1. Register a `sessionStart` command using the supplied helper and event argument.
-2. Include both `bash` and `powershell`, a short `timeoutSec`, and
-   `env: { "DEMO_DIR": "demo-app" }`.
-3. Add a separate `subagentStart` entry if you want the same briefing for
-   subagents. Pass that event name rather than reusing the start argument.
-
-Predict the effect before comparing with
-`solutions/02-session-context/session-context.json`.
-
-## Offline fixture commands
+## Check
 
 **Bash**
 
 ```bash
-node tests/validate-configs.mjs .github/hooks/session-context.json
-node tests/try-hook.mjs .github/hooks/session-context.json sessionStart fixtures/events/sessionStart-new.json --shell bash
-node tests/try-hook.mjs .github/hooks/session-context.json subagentStart fixtures/events/subagentStart.json --shell bash
-node tests/try-hook.mjs .github/hooks/session-context.json postToolUse fixtures/events/postToolUse-read.json --shell bash
+bash scripts/try-hook.sh .github/hooks/session-context.json sessionStart fixtures/events/sessionStart-new.json
+bash scripts/try-hook.sh .github/hooks/session-context.json subagentStart fixtures/events/subagentStart.json
+bash scripts/try-hook.sh .github/hooks/session-context.json postToolUse fixtures/events/postToolUse-read.json
 ```
 
 **PowerShell**
 
 ```powershell
-node tests/validate-configs.mjs .github/hooks/session-context.json
-node tests/try-hook.mjs .github/hooks/session-context.json sessionStart fixtures/events/sessionStart-new.json --shell powershell
-node tests/try-hook.mjs .github/hooks/session-context.json subagentStart fixtures/events/subagentStart.json --shell powershell
-node tests/try-hook.mjs .github/hooks/session-context.json postToolUse fixtures/events/postToolUse-read.json --shell powershell
+pwsh -File scripts/try-hook.ps1 .github/hooks/session-context.json sessionStart fixtures/events/sessionStart-new.json
+pwsh -File scripts/try-hook.ps1 .github/hooks/session-context.json subagentStart fixtures/events/subagentStart.json
+pwsh -File scripts/try-hook.ps1 .github/hooks/session-context.json postToolUse fixtures/events/postToolUse-read.json
 ```
 
-Expect top-level `additionalContext` with relevant check commands and available
-Git metadata. The commands should not change files. Outside a Git repository,
-missing Git context is not evidence that the whole hook failed.
-If you omitted the optional subagent entry, its call correctly reports zero
-matches. The last call is a **no-trigger control**: `postToolUse` should report
-`0 matching hook(s)` and no briefing.
+Expect `additionalContext` with the house rules and branch for the first two, and
+`0 matching hook(s)` for the third (wrong event, so no briefing).
 
-## Live prompts and observations
+**Live:** start a fresh session and ask: *"Which rules apply to money in this
+project, and which check should I run before finishing?"* The answer should
+quote the house rules. If you kept the activity log on, `sessionStart` appears there.
+A correct answer alone is weak evidence (the model may guess): use the log.
 
-| Action/prompt | Event | Expected outcome |
-| --- | --- | --- |
-| Start a fresh session, then ask “Which demo checks should we run before finishing?” | `sessionStart` | If configured, the activity log confirms delivery; context identifies demo checks |
-| “Use an explore subagent to summarize the demo tests, if supported.” | `subagentStart` if emitted | Subagent briefing only if the runtime supports/emits the event |
+## Stretch
 
-An answer that happens to name the commands is not sufficient proof; compare
-hook diagnostics and, if configured, the optional activity log.
-
-## Configuration-only stretch
-
-Configure context for only subagents, then only session starts. Explain the
-difference in scope without editing the helper.
-
-## Reuse / disable
-
-For another project, adapt the helper's known-project assumptions separately;
-changing `DEMO_DIR` alone does not teach it arbitrary build systems.
-Remove only `session-context.json` and restart to disable.
+Register only `subagentStart`, then only `sessionStart`, and explain the
+difference in scope. To disable: move the file out and start a fresh session.

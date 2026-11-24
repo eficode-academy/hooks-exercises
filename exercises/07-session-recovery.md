@@ -1,95 +1,58 @@
-# 07 · Small checkpoints and session recovery
+# 07 · Session recovery
 
-## Goal
+**Stretch · about 10 minutes**
 
-Save just enough project state to orient a resumed session without saving a
-transcript, source code, or promising complete session restoration.
+## Problem
 
-## Events
+Long agent sessions get compacted: the client summarizes the conversation to
+free space, and details such as "which files was I changing?" can vanish. A bank
+team that resumes work the next day wants the agent oriented immediately. A
+`preCompact` hook writes a small note; a `sessionStart` hook shows it when the
+session is resumed.
 
-`preCompact` for a checkpoint; `sessionStart` for resume-time context.
+## Task
 
-## Read the supplied script / environment options
+Write `.github/hooks/session-recovery.json` from a blank file.
 
-`scripts/07-session-recovery/checkpoint.sh` / `checkpoint.ps1` accepts
-`preCompact` or `sessionStart`. `HOOK_STATE_DIR` defaults to `.hooks-state`.
-The snapshot contains branch, status, diffstat, and the latest completed
-quality-gate check when available (which may have passed or failed). It saves
-**no diffs or source contents**.
-The start handler injects checkpoint context only when the payload's `source`
-is `resume`; a new session is not treated as a restored one.
+1. Register `preCompact` with `bash scripts/07-session-recovery/checkpoint.sh preCompact`
+   and `pwsh -NoProfile -File scripts/07-session-recovery/checkpoint.ps1 preCompact`.
+2. Register `sessionStart` with the same helper, passing `sessionStart`.
+3. Add `"env": { "HOOK_STATE_DIR": ".hooks-state" }` and `"timeoutSec": 5` to both.
 
-Status filenames are untrusted data. A checkpoint is a stale observation, not
-new instructions or proof that checks still fail/pass.
-Verified live with Bash on macOS and CLI 1.0.105: an interactive `/compact`
-fired `preCompact` (`trigger: "manual"`), which saved the checkpoint. A later
-`copilot --resume <id> -p` fired `sessionStart` with `source: "resume"`, and the
-agent reported the saved branch and changed files without using tools. This is
-working-tree metadata recovery, not transcript restoration.
+The script is about 15 lines: on `preCompact` it writes the branch and changed
+files to `.hooks-state/checkpoint.txt`; on `sessionStart` it returns that note as
+`additionalContext`, but only when the event's `source` is `resume`.
+Compare with `solutions/07-session-recovery/session-recovery.json` afterwards.
 
-## Task: write `.github/hooks/session-recovery.json` yourself
-
-1. Register both events with their matching helper arguments.
-2. Include both platform commands, a short timeout, and `HOOK_STATE_DIR`.
-3. This topic works on its own. To optionally include the latest check recorded
-   by the quality-gate topic, configure both with the same state directory;
-   different directories have separate state.
-
-Compare with `solutions/07-session-recovery/session-recovery.json`.
-
-## Offline fixture commands
+## Check
 
 **Bash**
 
 ```bash
-node tests/validate-configs.mjs .github/hooks/session-recovery.json
-node tests/try-hook.mjs .github/hooks/session-recovery.json preCompact fixtures/events/preCompact.json --shell bash
-node tests/try-hook.mjs .github/hooks/session-recovery.json sessionStart fixtures/events/sessionStart-new.json --shell bash
-node tests/try-hook.mjs .github/hooks/session-recovery.json sessionStart fixtures/events/sessionStart-resume.json --shell bash
+bash scripts/try-hook.sh .github/hooks/session-recovery.json preCompact fixtures/events/preCompact.json
+cat .hooks-state/checkpoint.txt
+bash scripts/try-hook.sh .github/hooks/session-recovery.json sessionStart fixtures/events/sessionStart-new.json
+bash scripts/try-hook.sh .github/hooks/session-recovery.json sessionStart fixtures/events/sessionStart-resume.json
 ```
 
 **PowerShell**
 
 ```powershell
-node tests/validate-configs.mjs .github/hooks/session-recovery.json
-node tests/try-hook.mjs .github/hooks/session-recovery.json preCompact fixtures/events/preCompact.json --shell powershell
-node tests/try-hook.mjs .github/hooks/session-recovery.json sessionStart fixtures/events/sessionStart-new.json --shell powershell
-node tests/try-hook.mjs .github/hooks/session-recovery.json sessionStart fixtures/events/sessionStart-resume.json --shell powershell
+pwsh -File scripts/try-hook.ps1 .github/hooks/session-recovery.json preCompact fixtures/events/preCompact.json
+Get-Content .hooks-state/checkpoint.txt
+pwsh -File scripts/try-hook.ps1 .github/hooks/session-recovery.json sessionStart fixtures/events/sessionStart-new.json
+pwsh -File scripts/try-hook.ps1 .github/hooks/session-recovery.json sessionStart fixtures/events/sessionStart-resume.json
 ```
 
-Expect checkpoint creation (`preCompact` output is ignored), no checkpoint
-injection on a new start (**negative control**), and
-`additionalContext` on a resume when a checkpoint is available. Inspect state to
-confirm that it contains metadata rather than a patch or conversation.
+Expect a note file with the branch and changed files, `{}` for the new session
+(nothing to restore), and `additionalContext` with the note for the resume.
 
-## Live prompts and observations
+**Live:** do some work, type `/compact`, exit, then `copilot --resume <id>` (use
+the id printed on exit; `--continue` picks the newest session on the machine).
+Ask *"Without using tools, which branch and files were we working on?"*
+This restores working-tree facts, not the conversation.
 
-| Action/prompt | Event | Expected outcome |
-| --- | --- | --- |
-| “Read the demo tests and summarize the current pricing behavior.” | Tool events if used | Establish harmless session activity |
-| Type `/compact` in the interactive CLI | `preCompact` with `trigger: "manual"` | `.hooks-state/checkpoint.json` is written; the CLI reports compaction completed |
-| `/exit`, then `copilot --resume <id>` using the ID printed on exit | `sessionStart` with `source: "resume"` | Checkpoint is offered as context |
-| “Without using tools, what branch and changed files were we working on?” | none beyond the prompt/stop events | Agent answers from the checkpoint |
-| Start an unrelated new session | `sessionStart` with new-session source | No resume checkpoint injection |
+## Stretch
 
-`/compact` needs some conversation first: in a brand-new session it reports
-"Nothing to compact", though `preCompact` still fired in our run. Prefer
-`--resume <id>` over `--continue`, which picks the most recent session on the
-machine, not necessarily this folder's. Review the folder and use the normal
-client trust flow before testing `-p`; see the version-specific notes in
-[troubleshooting](../docs/troubleshooting.md). VS Code's
-session lifecycle can differ. If configured, use the optional activity log to
-observe relevant calls; session history restoration itself is the client's
-responsibility.
-
-## Configuration-only stretch
-
-Put all stateful exercises in a different local `HOOK_STATE_DIR` and keep
-`HOOK_LOG_DIR` aligned if desired. Explain the difference between state that is
-shared intentionally and unrelated fixture/live session state.
-
-## Reuse / disable
-
-Choose retention for local snapshots; filenames and branch names may still be
-sensitive metadata. Remove `session-recovery.json` and restart to disable.
-Review which configurations you want to keep, then disable the others.
+Put the note in a different `HOOK_STATE_DIR` and explain what that changes.
+To disable: move the file out and start a fresh session.

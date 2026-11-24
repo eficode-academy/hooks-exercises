@@ -1,0 +1,17 @@
+{
+  "name": "Copilot hooks exercises",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/powershell:1": {},
+    "ghcr.io/devcontainers/features/copilot-cli:1": {}
+  },
+  "postCreateCommand": "command -v jq > /dev/null || (sudo apt-get update && sudo apt-get install -y jq)",
+  "postAttachCommand": "bash scripts/preflight.sh || true",
+  "customizations": {
+    "vscode": {
+      "extensions": ["GitHub.copilot", "GitHub.copilot-chat"]
+    }
+  }
+}

@@ -8,7 +8,7 @@ $dir = $env:HOOK_STATE_DIR ?? '.hooks-state'
 $file = Join-Path $dir 'checkpoint.txt'
 if ($EventName -eq 'preCompact') {
   New-Item -ItemType Directory -Force $dir | Out-Null
-  @("Saved $((Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ'))", "Branch: $(git branch --show-current)", 'Changed files:') + @(git status --short | Select-Object -First 20) | Set-Content $file
+  @("Saved $((Get-Date).ToUniversalTime().ToString('s') + 'Z')", "Branch: $(git branch --show-current)", 'Changed files:') + @(git status --short | Select-Object -First 20) | Set-Content $file
   '{}'
 }
 elseif ($e.source -eq 'resume' -and (Test-Path $file)) {

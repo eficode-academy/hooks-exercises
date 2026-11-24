@@ -5,7 +5,7 @@
 $e = [Console]::In.ReadToEnd() | ConvertFrom-Json
 $dir = $env:HOOK_LOG_DIR ?? '.hooks-state'
 New-Item -ItemType Directory -Force $dir | Out-Null
-"$((Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')) $($e.toolName ?? 'unknown') failed" | Add-Content (Join-Path $dir 'failures.log')
+"$((Get-Date).ToUniversalTime().ToString('s') + 'Z') $($e.toolName ?? 'unknown') failed" | Add-Content (Join-Path $dir 'failures.log')
 $error_ = $e.error | ConvertTo-Json -Compress
 $hint = switch -Wildcard ($error_) {
   '*does not exist*'  { 'The path does not exist. Search for the file name before trying again.'; break }

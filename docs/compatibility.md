@@ -1,143 +1,103 @@
-# Compatibility and verification
+# Compatibility and what offline checks prove
+
+The exercises keep one line about this; the detail lives here.
 
 ## Evidence levels
 
-Keep these separate when recording results:
+Keep these separate when you record a result:
 
-1. **Documented contract:** reference describes a field/event.
-2. **Offline fixture-tested:** supplied helpers respond to synthetic payloads.
-3. **Live delivery observed:** a particular client actually calls a handler.
-4. **Live effect observed:** that client consumes context/decisions as intended.
+1. **Documented contract:** the reference describes a field or event.
+2. **Offline fixture-tested:** the supplied helper answers a synthetic event
+   correctly (`scripts/try-hook`, `tests/run.sh`).
+3. **Live delivery observed:** your client really called the handler.
+4. **Live effect observed:** your client used the answer (context reached the
+   model, a denial stopped the call).
 
-A passing fixture does not establish registration, matching, or live effects.
-A live event record does not establish that the agent received its output.
+A passing offline run proves levels 1-2 at most. It does not prove that your
+client registered the file, matched the tool name, or honoured the response.
+An absent event is a diagnostic finding, not a pass: a tool may not have run,
+the client may not emit that event, the folder may be untrusted, or policy
+may block hooks. Say "unverified" until you have seen it live.
 
-## Recorded live observations
+## What was observed live
 
-Controlled probes used **Copilot CLI 1.0.105, Bash, macOS**. The following
-separates supplied-fixture behavior from observed client effects; it does not
-certify other versions, shells, platforms, or tool adapters.
+Controlled probes used **Copilot CLI 1.0.105, Bash, macOS**. The helpers were
+longer in that version; this repository now ships simplified v2 helpers that
+have been tested **offline** (bash and PowerShell 7) but not yet re-run live.
+The event behaviour below belongs to the client, not to the helpers.
 
-| Topic / behavior | Offline fixture coverage | Recorded live result |
-| --- | --- | --- |
-| Activity metadata | Synthetic event records | Supplied logger persisted `sessionStart`, `userPromptSubmitted`, `preToolUse`, `postToolUse`, `postToolUseFailure`, `agentStop`, `sessionEnd`, `subagentStart`, and `subagentStop` |
-| Session context | Briefing response | Supplied briefing's npm check command consumed; a separate unique-code context probe also established start-context consumption |
-| File guard | Protected edit denial and controls | Configured `PROTECTED_PATHS` direct edit denied; protected file remained unchanged |
-| Command guard | Synthetic dangerous/safe strings | Destructive commands deliberately not executed; no broader live security claim |
-| Post-edit feedback | Scoped format/lint and controls | `create` of the exact messy example was formatted into two spaced, semicolon-terminated lines; agent received ESLint `no-unused-vars` context |
-| Finish-time gate | Initial failure, retry, passing checks | Broken-cart **test-only** gate blocked the first stop and forced a second turn; still-failing retry surfaced a warning with exit 2 and finished after exactly two stops; last-check status was failed |
-| Missing-file tool failure | Guidance, counter, completion reset | Missing-file `view` fired `postToolUseFailure` and updated the counter. JSON `additionalContext` (exit 0) guidance was quoted back by the agent; an earlier plain-stdout/exit-2 variant was **not** delivered |
-| Shell command exiting `7` | Distinct completion/failure fixtures | Reported as `postToolUse`, **not** `postToolUseFailure` |
-| Checkpoint creation | Supplied `preCompact` handler saved metadata after an offline lint failure | Interactive `/compact` fired `preCompact` with `trigger: "manual"` and the supplied handler wrote `checkpoint.json` (branch, changed files, diffstat); compaction completed |
-| Resume context | New/resume fixture controls | `copilot --resume <id> -p` on the compacted session fired `sessionStart` with `source: "resume"`; agent reported the checkpoint's branch and changed files without tools. An earlier run also reported last-check `lint` / `failed` |
-| VS Code / live PowerShell | Separate supplied script tracks | Live effects not tested |
-
-Do not infer the full default format/lint/test gate sequence was
-live-verified from the test-only gate probe. Resume evidence demonstrates
-consumption of **working-tree metadata**, not transcript restoration.
-Automatic compaction (`trigger: "auto"`) was not triggered.
-
-Live-run notes: `-p` runs skipped repository hooks in an untrusted folder, and
-`--continue` resumed the machine's most recent session rather than this
-folder's (see [troubleshooting](troubleshooting.md)).
-
-Bounded CLI 1.0.109 observations (Bash, macOS, disposable repository; not used
-as exercises):
-
-- With `-p`, repository hooks loaded in an untrusted folder when
-  `GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS=true` was set. Without that setting
-  or broad permission approval, they were skipped. A separate non-default
-  `COPILOT_ALLOW_ALL=true` probe also loaded them, but approved all tools: it
-  did not validate the normal folder-trust flow and is not recommended setup.
-  The opt-in is not a tool-permission grant or a substitute for reviewing the
-  folder and using the normal trust flow.
-- A `userPromptSubmitted` hook's `additionalContext` reached the model in one
-  run. The current reference says config-file `userPromptSubmitted` output is
-  dropped, so treat this as undocumented, version-specific behavior. It is not
-  an exercise contract.
-- A `userPromptSubmitted` response of `{"response": ...}` was **not observed**
-  to skip the model in one `-p` run; the model still answered.
-- A `preToolUse` `modifiedArgs` rewrite of a synthetic `echo` command was
-  applied: the tool ran the replacement command.
-- HTTP hooks and `permissionRequest` were not tested.
-
-Observed tool arguments included `edit` with `path`, `old_str`, `new_str`;
-`view` with `path`; and `bash` with `command`, `description`. These examples do
-not define a universal tool schema. Other tools/clients may use other names or
-argument shapes.
-
-## Contracts used by these exercises
-
-The recipes target native camelCase event names and payload/output fields:
-`sessionStart`, `toolName`, `toolArgs`, `additionalContext`, and so on.
-Do not substitute PascalCase aliases or nested response envelopes from a
-different agent harness. Do not mechanically rename payload keys: the supplied
-stop retry fixture deliberately includes the event-specific `stop_hook_active`.
-
-| Surface | Exercise use / limitation |
+| Behaviour | Observed |
 | --- | --- |
-| JSON registration | `version: 1`, `hooks`, command `type`, `bash`, `powershell`, `env`, `timeoutSec`, optional `matcher` |
-| Context responses | Top-level `additionalContext` where the event consumes context |
-| Pre-tool decisions | Narrow tool/path adapters only; prove both matching and decision handling live |
-| Finish-time decisions | `agentStop` block/reason with bounded retry handling; not a `sessionEnd` gate |
-| Failure response | `postToolUseFailure` helper returns top-level `additionalContext` (exit 0), delivered in CLI 1.0.105. The documented plain-stdout/exit-2 alternative was not delivered |
-| Other recovery modes | No-decision JSON (`{}`); they are not automatic retry commands |
-| `preCompact` | Output is ignored; the checkpoint helper saves a local artifact |
-| Resume context | Separate `sessionStart` call with `source: "resume"`; not automatic restoration during compaction |
-| `notification` | CLI-only optional exploration; not assumed for VS Code |
+| Event delivery | `sessionStart`, `userPromptSubmitted`, `preToolUse`, `postToolUse`, `postToolUseFailure`, `agentStop`, `sessionEnd`, `subagentStart`, `subagentStop` reached a logging hook |
+| Start context | `additionalContext` from `sessionStart` was consumed by the model |
+| File guard | A direct `edit` of a protected path was denied and the file stayed unchanged |
+| Post-edit feedback | `additionalContext` after an `edit`/`create` reached the agent |
+| Finish gate | An `agentStop` block forced a second turn; a still-failing retry with `stop_hook_active` ended after exactly two stops |
+| Tool failure | A missing-file `view` fired `postToolUseFailure`; JSON `additionalContext` (exit 0) was quoted back by the agent, a plain-stdout/exit-2 variant was not delivered |
+| Shell failure | A shell command exiting `7` was reported as `postToolUse`, **not** `postToolUseFailure` |
+| Compaction | Manual `/compact` fired `preCompact` (`trigger: "manual"`); automatic compaction was not triggered |
+| Resume | `copilot --resume <id>` fired `sessionStart` with `source: "resume"`, and the agent used working-tree facts from the note, not the conversation |
+| VS Code, live PowerShell | Not tested |
 
-See the authoritative [references](sources.md) for your current version.
-Organization policy, trust, permissions, execution host, and other hook sources
-can all affect behavior. Hook errors/timeouts are not a security guarantee.
+Tool arguments seen: `edit` with `path`, `old_str`, `new_str`; `view` with
+`path`; `bash` with `command`, `description`. These are examples, not a universal
+schema; other tools and clients may differ.
 
-## Offline validation
+## What the guardrails do not cover
 
-From the repository root, after installing demo dependencies:
+The guards in exercise 03 are plain text matches on one tool call:
+
+- `protect-files` reads `toolArgs.path` (or the patch text for `apply_patch`).
+  It does not see shell writes (`echo > file`), other tools, or symlinks.
+- `guard-commands` matches four patterns (`rm -rf`, `git push --force`/`-f`,
+  `git reset --hard`, `curl ... | sh`). Quoting, aliases, extra spaces, other
+  flags and PowerShell equivalents such as `Remove-Item -Recurse -Force` pass
+  through. A quoted example in a string can also trigger it.
+- Hook errors and timeouts are not a security guarantee, and an agent that can
+  edit `.github/hooks/` can change the hooks.
+
+Treat hooks as a seatbelt next to permissions, review and CI.
+
+## Contracts these exercises use
+
+Native camelCase event names and fields: `toolName`, `toolArgs`,
+`additionalContext`, `permissionDecision`, `decision`. Do not substitute
+PascalCase aliases or another harness's nested response envelopes, and keep
+event-specific keys such as `stop_hook_active` as they are.
+
+| Surface | Used for |
+| --- | --- |
+| Registration | `version: 1`, `hooks`, `type: "command"`, `bash`, `powershell`, `env`, `timeoutSec`, optional `matcher` |
+| Context | Top-level `additionalContext` where the event consumes it |
+| Tool decision | `permissionDecision` + `permissionDecisionReason` on `preToolUse` |
+| Finish decision | `decision: "block"` + `reason` on `agentStop`, not `sessionEnd` |
+| `preCompact` | Output is ignored; the helper saves a local note |
+| `notification` | CLI-only; not assumed in VS Code |
+
+`{}` means "no decision", not approval. See [sources](sources.md) for the
+current reference; organization policy, trust and other hook sources (user,
+agent, plugin) also affect behaviour.
+
+## Checking your own work
+
+Offline, from the repository root:
 
 ```text
-node tests/validate-configs.mjs .github/hooks/activity-log.json
-node tests/try-hook.mjs .github/hooks/activity-log.json sessionStart fixtures/events/sessionStart-new.json --shell bash
-node tests/run.mjs --shell bash
-node tests/run.mjs --shell powershell
-node tests/doc-commands.mjs --shell bash
-node tests/doc-commands.mjs --shell powershell
+bash scripts/try-hook.sh .github/hooks/NAME.json EVENT fixtures/events/FIXTURE.json
+pwsh -File scripts/try-hook.ps1 .github/hooks/NAME.json EVENT fixtures/events/FIXTURE.json
 ```
 
-Run the shell suite for your installed track; running both is optional.
-The first command validates **your active JSON** and resolves commands to
-supplied script paths. `try-hook` executes matching entries from your JSON with
-its environment options; it resolves fixture `cwd` and never runs the Copilot
-tool described by that fixture. Neither invokes a live client.
-`tests/run.mjs` is the separate supplied-script fixture regression suite.
-`tests/doc-commands.mjs` runs the numbered exercises' shell blocks verbatim in
-disposable copies with sample active configurations. It also checks that an
-existing quality-gate backup is preserved and a failed restore retains its
-backup. This is documentation regression coverage, not evidence that your own
-JSON or live client works.
+`try-hook` runs the matching entries of **your** JSON with their `env` values
+and matchers, and never the command stored in the fixture. Maintainers run
+`bash tests/run.sh` and `pwsh -File tests/run.ps1`, which push every fixture
+through the reference solutions.
 
-The demo baseline (`npm --prefix demo-app run check`) has been observed passing
-with six Node tests, ESLint 9, and Prettier 3 after dependency installation.
-Re-run it locally; later exercises intentionally introduce failures temporarily.
+In your own client, record version, OS, shell, date and policy, then:
 
-## Verify in your own client
+1. Enable only the activity log and check that live lines appear.
+2. Enable one topic at a time and look for its event in the log.
+3. Verify the effect separately (a denial, a briefing, a block).
+4. Remove the JSON and start a fresh session to prove it is off. User and plugin
+   hooks can keep running after a repository file is removed.
 
-Record client/version, OS, shell, host, date, and policy/trust prerequisites.
-In VS Code select the **Copilot** target; other harnesses have other contracts.
-
-1. Enable only the activity observer, validate its JSON, and start a fresh
-   session. Distinguish synthetic session records from live ones.
-2. Request a harmless read and identify actual tool names from metadata.
-3. Enable context and check both start delivery and output consumption.
-4. Try the harmless protected-file prompt, plus an ordinary read/control.
-   Confirm the actual tool payload fits the supplied adapter.
-5. Test post-edit formatting on a disposable file and check the resulting diff.
-6. Safely back up the demo before a quality-gate failure. Verify initial
-   blocking, repeated-check bounded behavior, and final restoration.
-7. Test tool failure with a missing-file **view**. A failed shell command need
-   not emit `postToolUseFailure`.
-8. Test manual compaction and explicit session resume separately if available.
-9. Remove each exercise's JSON and start a fresh session to prove disabling.
-
-Label absent or ambiguous effects **unverified**, not successful. User/plugin
-hooks can continue running after a repository config is removed. Do not retain
-raw prompts, source, secrets, or full event payloads as debugging logs.
+Do not keep raw prompts, source code, secrets or full event payloads as debug logs.

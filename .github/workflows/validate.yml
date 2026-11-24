@@ -20,28 +20,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install demo tools
-        run: npm ci --prefix demo-app --no-audit --no-fund
-      - name: Validate demo and example configs
-        shell: bash
-        run: |
-          npm --prefix demo-app run check
-          node tests/validate-configs.mjs
-          node tests/docs.mjs
-      - name: Bash hook contracts
+      - name: Bash track (scripts, fixtures, docs)
         if: matrix.bash
         run: |
-          node tests/run.mjs --shell bash
-          node tests/doc-commands.mjs --shell bash
-      - name: PowerShell syntax
+          bash tests/run.sh
+          bash tests/docs.sh
+      - name: PowerShell track (scripts, fixtures, doc commands)
         shell: pwsh
-        run: ./tests/powershell/parse.ps1
-      - name: PowerShell hook contracts
-        shell: pwsh
-        run: |
-          node tests/run.mjs --shell powershell
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          node tests/doc-commands.mjs --shell powershell
+        run: ./tests/run.ps1

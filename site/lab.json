@@ -1,7 +1,7 @@
 {
   "id": "copilot-hooks-exercises",
   "title": "GitHub Copilot hooks",
-  "description": "Configure, test, and observe GitHub Copilot hooks",
+  "description": "Write GitHub Copilot hook configurations: Problem, Task, Check. Core path about 55 minutes.",
   "overview": {
     "id": "overview",
     "title": "Overview",
@@ -12,72 +12,84 @@
       "id": "setup",
       "title": "00 · Setup and hook anatomy",
       "file": "exercises/00-setup.md",
-      "minutes": 15
+      "level": "core",
+      "minutes": 10
     },
     {
       "id": "activity-log",
       "title": "01 · Activity log",
       "file": "exercises/01-activity-log.md",
+      "level": "core",
       "minutes": 15
     },
     {
       "id": "session-context",
       "title": "02 · Session context",
       "file": "exercises/02-session-context.md",
+      "level": "core",
       "minutes": 10
     },
     {
       "id": "guardrails",
-      "title": "03 · Narrow tool guardrails",
+      "title": "03 · Guardrails",
       "file": "exercises/03-guardrails.md",
+      "level": "core",
       "minutes": 20
     },
     {
       "id": "format-lint",
-      "title": "04 · Format and lint after edits",
+      "title": "04 · Check after edits",
       "file": "exercises/04-format-lint.md",
+      "level": "stretch",
       "minutes": 15
     },
     {
       "id": "quality-gate",
-      "title": "05 · Finish-time quality gate",
+      "title": "05 · Quality gate",
       "file": "exercises/05-quality-gate.md",
-      "minutes": 20
-    },
-    {
-      "id": "failure-recovery",
-      "title": "06 · Recovery after failed tools",
-      "file": "exercises/06-failure-recovery.md",
+      "level": "stretch",
       "minutes": 15
     },
     {
+      "id": "failure-recovery",
+      "title": "06 · Failure recovery",
+      "file": "exercises/06-failure-recovery.md",
+      "level": "stretch",
+      "minutes": 10
+    },
+    {
       "id": "session-recovery",
-      "title": "07 · Small checkpoints and session recovery",
+      "title": "07 · Session recovery",
       "file": "exercises/07-session-recovery.md",
+      "level": "stretch",
       "minutes": 10
     },
     {
       "id": "personal-hooks",
-      "title": "Extra · Personal hooks and portability",
+      "title": "Extra · Personal hooks",
       "file": "exercises/extras/personal-hooks.md",
+      "level": "stretch",
       "minutes": 10
     },
     {
       "id": "notifications",
-      "title": "Extra · Completion cues and notifications",
+      "title": "Extra · Completion cue",
       "file": "exercises/extras/notifications.md",
+      "level": "stretch",
       "minutes": 10
     },
     {
       "id": "agent-hooks",
       "title": "Extra · Agent-scoped hooks",
       "file": "exercises/extras/agent-scoped-hooks.md",
+      "level": "stretch",
       "minutes": 10
     },
     {
       "id": "secret-guard",
-      "title": "Extra · A limited secret-check experiment",
+      "title": "Extra · A limited secret guard",
       "file": "exercises/extras/secret-guard.md",
+      "level": "stretch",
       "minutes": 10
     },
     {
@@ -94,7 +106,7 @@
     },
     {
       "id": "compatibility",
-      "title": "Reference · Compatibility and verification",
+      "title": "Reference · Compatibility and what offline checks prove",
       "file": "docs/compatibility.md",
       "minutes": 10
     },

@@ -19,7 +19,7 @@ $out = '{"toolName":"bash","toolArgs":{"command":"git reset --hard"}}' | pwsh -N
 if ($out -match '"deny"') { '  ok       guard helper runs here and denies a dangerous command' }
 else { "  FAILED   guard helper did not return a deny decision: $out"; $fail = $true }
 $configs = @("$HOME/.copilot/config.json") + @(Get-ChildItem .github/hooks/*.json -ErrorAction SilentlyContinue)
-if ($configs | Where-Object { Test-Path $_ } | Select-String -Pattern '"disableAllHooks"\s*:\s*true' -Quiet) {
+if ($configs | Where-Object { Test-Path $_ } | Select-String -Pattern '"disableAllHooks"\s*:\s*true' | Select-Object -First 1) {
   '  WARNING  disableAllHooks is true in your Copilot config or .github/hooks/'
 }
 '  note     Whether your organization allows hooks can only be proven live: finish exercise 01 and'

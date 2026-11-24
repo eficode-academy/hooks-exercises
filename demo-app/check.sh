@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Stand-in for your project's own check. Replace the body with `npm test`, `pytest -q`, `go test ./...` ...
+# Stand-in for your project's own check. Replace the body with `make test`, `pytest -q`, `go test ./...` ...
 # Exit code 0 = pass, anything else = fail (the message on stdout is what the agent sees).
 cd "$(dirname "$0")" || exit 1
 if grep -rn --include='*.js' -e 'console\.log' -e 'debugger' src; then
