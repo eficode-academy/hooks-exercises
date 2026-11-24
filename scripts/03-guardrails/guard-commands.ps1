@@ -1,39 +1,15 @@
-#!/usr/bin/env pwsh
-# preToolUse bash/powershell toolArgs.command only. GUARD_MODE=deny (default) or ask.
-# Text heuristics, not a shell parser: quoted examples can match; aliases, quoting,
-# obfuscation, global git options, and equivalent PowerShell commands can evade them.
-# This hook never executes the supplied command.
-$ErrorActionPreference = 'Stop'
-try {
-    $event = [Console]::In.ReadToEnd() | ConvertFrom-Json -AsHashtable
-    if ($event -isnot [System.Collections.IDictionary] -or $event.cwd -isnot [string] -or
-        $event.cwd -notmatch '^(/|[A-Za-z]:[/\\])' -or -not [IO.Directory]::Exists($event.cwd)) { throw 'Expected an existing absolute cwd' }
-    $mode = if ($null -eq $env:GUARD_MODE) { 'deny' } else { $env:GUARD_MODE }
-    if ($mode -cnotin @('deny', 'ask')) { throw 'GUARD_MODE must be deny or ask' }
-    if ($event.toolName -is [string] -and $event.toolName -cnotin @('bash', 'powershell')) {
-        [Console]::Out.WriteLine('{}')
-        exit 0
-    }
-    if ($event.toolName -cnotin @('bash', 'powershell') -or $event.toolArgs -isnot [System.Collections.IDictionary] -or
-        $event.toolArgs.command -isnot [string]) {
-        @{ permissionDecision = 'deny'; permissionDecisionReason = 'Cannot safely inspect this command: expected bash/powershell toolArgs.command as a string.' } | ConvertTo-Json -Compress
-        exit 0
-    }
-    $command = $event.toolArgs.command
-    $risk = $null
-    if ($command -match '(^|[\s;&|()])rm\s+(-[A-Za-z]*r[A-Za-z]*f[A-Za-z]*|-[A-Za-z]*f[A-Za-z]*r[A-Za-z]*|-[A-Za-z]*r[A-Za-z]*\s+-[A-Za-z]*f[A-Za-z]*|-[A-Za-z]*f[A-Za-z]*\s+-[A-Za-z]*r[A-Za-z]*)(\s|$)') {
-        $risk = 'Recursive forced deletion (rm -rf)'
-    } elseif ($command -match '(^|[\s;&|()])git\s+reset\s+[^\r\n;&|]*--hard(\s|$)') {
-        $risk = 'Discarding changes (git reset --hard)'
-    } elseif ($command -match '(^|[\s;&|()])git\s+push\s+[^\r\n;&|]*(--force(?:-with-lease(?:=[^\s;&|]+)?|-if-includes)?|-f)(\s|$)') {
-        $risk = 'Rewriting remote history (git push --force/-f)'
-    }
-    if ($null -eq $risk) { [Console]::Out.WriteLine('{}') }
-    else {
-        @{ permissionDecision = $mode; permissionDecisionReason = "$risk is guarded. Inspect git status/diff, make a backup, and ask a human to run a reviewed recovery command instead. No command was executed by this hook." } | ConvertTo-Json -Compress
-    }
-} catch {
-    [Console]::Error.WriteLine("guard-commands: $($_.Exception.Message)")
-    [Console]::Out.WriteLine('{}')
-    exit 2
+# preToolUse guard for shell tools (bash, powershell). A plain text match, not a shell parser.
+# Reads:   the event JSON on stdin; looks at toolArgs.command.
+# Env:     GUARD_MODE, "deny" (default) or "ask" (let a human decide).
+# Returns: a decision for rm -rf, git push --force, git reset --hard and curl | sh; otherwise {}.
+$e = [Console]::In.ReadToEnd() | ConvertFrom-Json
+$cmd = "$($e.toolArgs.command)"
+function Block($why) {
+  [ordered]@{ permissionDecision = ($env:GUARD_MODE ?? 'deny'); permissionDecisionReason = $why } | ConvertTo-Json -Compress
+  exit 0
 }
+if ($cmd -like '*rm -rf*' -or $cmd -like '*rm -fr*') { Block 'rm -rf is blocked. Delete specific files instead.' }
+if ($cmd -like '*git push*--force*' -or $cmd -like '*git push* -f*') { Block 'Force push is blocked. Use a normal push or open a pull request.' }
+if ($cmd -like '*git reset --hard*') { Block 'git reset --hard throws work away. Ask a human first.' }
+if ($cmd -like '*curl*| sh*' -or $cmd -like '*curl*| bash*') { Block 'Piping a download into a shell is blocked.' }
+'{}'

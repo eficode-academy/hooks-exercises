@@ -1,16 +1,9 @@
-#!/usr/bin/env pwsh
-# postToolUse edit/create/apply_patch. Native JSON parsing; Node bounds native local CLIs.
-# DEMO_DIR=demo-app; FORMAT_ON_EDIT=true; LINT_ON_EDIT=true; CHECK_TIMEOUT_SEC=10 (1..10).
-# Only existing non-symlink src/test JS/JSON files are formatted; ESLint receives JS only.
-$ErrorActionPreference = 'Stop'
-try {
-    $event = [Console]::In.ReadToEnd() | ConvertFrom-Json -AsHashtable
-    if ($event -isnot [System.Collections.IDictionary]) { throw 'Expected one JSON event object' }
-    $node = Get-Command node -CommandType Application -ErrorAction Stop | Select-Object -First 1
-    $event | ConvertTo-Json -Depth 100 -Compress | & $node.Source (Join-Path $PSScriptRoot 'after-edit.mjs')
-    exit $LASTEXITCODE
-} catch {
-    [Console]::Error.WriteLine("after-edit: $($_.Exception.Message)")
-    [Console]::Out.WriteLine('{}')
-    exit 2
-}
+# postToolUse hook: run your check after every edit and tell the agent if it fails.
+# Reads:   the event JSON on stdin (not needed, so it is discarded).
+# Env:     CHECK_COMMAND (default "pwsh -NoProfile -File demo-app/check.ps1"); use your own, e.g. "pytest -q".
+# Returns: {} when the check passes, else {"additionalContext": "<check output>"}.
+[Console]::In.ReadToEnd() | Out-Null
+$cmd = $env:CHECK_COMMAND ?? 'pwsh -NoProfile -File demo-app/check.ps1'
+$out = Invoke-Expression $cmd 2>&1 | Out-String
+if ($LASTEXITCODE -eq 0) { '{}' }
+else { @{ additionalContext = "The check failed after your edit. Fix it:`n$out" } | ConvertTo-Json -Compress }

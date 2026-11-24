@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
-# agentStop: CHECK_STEPS=format:check;lint;test (1..3 distinct known labels).
-# DEMO_DIR=demo-app; CHECK_TIMEOUT_SEC=10 (1..15 per step); HOOK_STATE_DIR=.hooks-state.
-# Paths are subdirectories of event.cwd. State is informational, never a pass cache.
-# stop_hook_active=true reruns checks, but reports repeated failure on stderr/exit 2.
-set -u
-fail() { printf 'quality-gate: %s\n' "$1" >&2; printf '{}\n'; exit 2; }
-command -v jq >/dev/null 2>&1 || fail 'jq is required.'
-command -v node >/dev/null 2>&1 || fail 'Node.js is required.'
-input=$(cat) || fail 'Cannot read hook input.'
-event=$(printf '%s' "$input" | jq -ce 'select(type == "object")') || fail 'Expected one JSON event object.'
-script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || fail 'Cannot locate hook files.'
-printf '%s' "$event" | node "$script_dir/gate.mjs"
+# agentStop hook: run your check before the agent is allowed to finish.
+# Reads:   the event JSON on stdin; stop_hook_active is true when the agent was already blocked once.
+# Env:     CHECK_COMMAND (default "bash demo-app/check.sh"); use your own, e.g. "pytest -q".
+# Returns: {"decision":"block","reason":"..."} if the check fails, else {}. Blocks only once per stop.
+input=$(cat)
+if [ "$(echo "$input" | jq -r '.stop_hook_active')" = "true" ]; then
+  echo "gate: already blocked once, letting the agent stop." >&2
+  echo '{}'
+elif out=$(bash -c "${CHECK_COMMAND:-bash demo-app/check.sh}" 2>&1); then
+  echo '{}'
+else
+  jq -n --arg why "The check failed. Fix it before you finish:
+$out" '{decision: "block", reason: $why}'
+fi
