@@ -13,8 +13,9 @@ transcript, source code, or promising complete session restoration.
 
 `scripts/07-session-recovery/checkpoint.sh` / `checkpoint.ps1` accepts
 `preCompact` or `sessionStart`. `HOOK_STATE_DIR` defaults to `.hooks-state`.
-The snapshot contains branch, status, diffstat, and the last failed check when
-available. It saves **no diffs or source contents**.
+The snapshot contains branch, status, diffstat, and the latest completed
+quality-gate check when available (which may have passed or failed). It saves
+**no diffs or source contents**.
 The start handler injects checkpoint context only when the payload's `source`
 is `resume`; a new session is not treated as a restored one.
 
@@ -30,8 +31,9 @@ working-tree metadata recovery, not transcript restoration.
 
 1. Register both events with their matching helper arguments.
 2. Include both platform commands, a short timeout, and `HOOK_STATE_DIR`.
-3. Use the same state directory as the quality gate if you want its last failed
-   check available. Explain why two different directories lose that connection.
+3. This topic works on its own. To optionally include the latest check recorded
+   by the quality-gate topic, configure both with the same state directory;
+   different directories have separate state.
 
 Compare with `solutions/07-session-recovery/session-recovery.json`.
 
@@ -76,8 +78,9 @@ confirm that it contains metadata rather than a patch or conversation.
 machine, not necessarily this folder's. Review the folder and use the normal
 client trust flow before testing `-p`; see the version-specific notes in
 [troubleshooting](../docs/troubleshooting.md). VS Code's
-session lifecycle can differ. The activity log must show the relevant calls;
-session history restoration itself is the client's responsibility.
+session lifecycle can differ. If configured, use the optional activity log to
+observe relevant calls; session history restoration itself is the client's
+responsibility.
 
 ## Configuration-only stretch
 

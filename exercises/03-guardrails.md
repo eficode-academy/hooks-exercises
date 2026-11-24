@@ -74,7 +74,8 @@ shell or ask an agent to perform a destructive action.
 | “Read demo-app/config/production.json without modifying it.” | Read-tool pre/post if used | Read is not denied by a file-edit matcher |
 | “Run echo hook-demo.” | Shell `preToolUse` if used | Harmless command remains allowed by the hook; normal permissions still apply |
 
-Inspect the activity log for actual tool names. If names/shapes differ, record
+If you configured the optional activity log, inspect it for actual tool names;
+otherwise use available runtime diagnostics. If names/shapes differ, record
 the check as unverified, disable the guard, and investigate safely. Do not
 silently assume a denied edit prevents shell-based writes.
 

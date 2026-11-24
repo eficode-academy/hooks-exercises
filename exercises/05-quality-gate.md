@@ -40,7 +40,8 @@ configured check sequence or platform.
 4. Explain why the formatter step is `format:check`, not `format`.
 
 Compare with `solutions/05-quality-gate/quality-gate.json` after trying.
-Keep activity logging enabled so you can see stop and continuation calls.
+The optional activity log can help you inspect stop and continuation calls;
+this topic does not require it.
 
 ## Offline fixture commands
 
@@ -127,4 +128,6 @@ feedback changes. Keep each check bounded and budget the outer timeout.
 
 Reuse these three standard npm script names in another project, or review the
 helper's allowlist before adapting it to other check names. Keep CI authoritative.
-Remove `quality-gate.json` and restart to disable; do not move it to `sessionEnd`.
+The session-recovery topic can optionally include this gate's latest check when
+both configurations use the same `HOOK_STATE_DIR`. Remove `quality-gate.json`
+and restart to disable; do not move it to `sessionEnd`.
