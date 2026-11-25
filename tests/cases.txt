@@ -1,0 +1,43 @@
+# config | event | fixture | expectation
+# Expectations: empty = exactly {} | none = no hook matched | deny / block = decision | context:TEXT = additionalContext contains TEXT
+# Lines starting with @ switch a deliberately failing file in demo-app/src on or off.
+solutions/01-activity-log/activity-log.json|sessionStart|fixtures/events/sessionStart-new.json|empty
+solutions/01-activity-log/activity-log.json|userPromptSubmitted|fixtures/events/userPromptSubmitted.json|empty
+solutions/01-activity-log/activity-log.json|preToolUse|fixtures/events/preToolUse-edit-protected.json|empty
+solutions/01-activity-log/activity-log.json|postToolUse|fixtures/events/postToolUse-edit.json|empty
+solutions/01-activity-log/activity-log.json|postToolUseFailure|fixtures/events/postToolUseFailure-missing-file.json|empty
+solutions/01-activity-log/activity-log.json|errorOccurred|fixtures/events/errorOccurred.json|empty
+solutions/01-activity-log/activity-log.json|preCompact|fixtures/events/preCompact.json|empty
+solutions/01-activity-log/activity-log.json|subagentStart|fixtures/events/subagentStart.json|empty
+solutions/01-activity-log/activity-log.json|subagentStop|fixtures/events/subagentStop.json|empty
+solutions/01-activity-log/activity-log.json|agentStop|fixtures/events/agentStop.json|empty
+solutions/01-activity-log/activity-log.json|sessionEnd|fixtures/events/sessionEnd.json|empty
+solutions/02-session-context/session-context.json|sessionStart|fixtures/events/sessionStart-new.json|context:House rules
+solutions/02-session-context/session-context.json|subagentStart|fixtures/events/subagentStart.json|context:integer cents
+solutions/02-session-context/session-context.json|postToolUse|fixtures/events/postToolUse-read.json|none
+solutions/03-guardrails/guardrails.json|preToolUse|fixtures/events/preToolUse-edit-protected.json|deny
+solutions/03-guardrails/guardrails.json|preToolUse|fixtures/events/preToolUse-edit-source.json|empty
+solutions/03-guardrails/guardrails.json|preToolUse|fixtures/events/preToolUse-read.json|none
+solutions/03-guardrails/guardrails.json|preToolUse|fixtures/events/preToolUse-dangerous-command.json|deny
+solutions/03-guardrails/guardrails.json|preToolUse|fixtures/events/preToolUse-rm-rf.json|deny
+solutions/03-guardrails/guardrails.json|preToolUse|fixtures/events/preToolUse-force-push.json|deny
+solutions/03-guardrails/guardrails.json|preToolUse|fixtures/events/preToolUse-curl-pipe.json|deny
+solutions/03-guardrails/guardrails.json|preToolUse|fixtures/events/preToolUse-safe-command.json|empty
+solutions/04-format-lint/format-lint.json|postToolUse|fixtures/events/postToolUse-edit.json|empty
+solutions/04-format-lint/format-lint.json|postToolUse|fixtures/events/postToolUse-read.json|none
+solutions/05-quality-gate/quality-gate.json|agentStop|fixtures/events/agentStop.json|empty
+solutions/05-quality-gate/quality-gate.json|sessionEnd|fixtures/events/sessionEnd.json|none
+@break
+solutions/04-format-lint/format-lint.json|postToolUse|fixtures/events/postToolUse-edit.json|context:remove debug statements
+solutions/05-quality-gate/quality-gate.json|agentStop|fixtures/events/agentStop.json|block
+solutions/05-quality-gate/quality-gate.json|agentStop|fixtures/events/agentStop-retry.json|empty
+@fix
+solutions/05-quality-gate/quality-gate.json|agentStop|fixtures/events/agentStop-retry.json|empty
+solutions/06-failure-recovery/failure-recovery.json|postToolUseFailure|fixtures/events/postToolUseFailure-missing-file.json|context:Search for the file
+solutions/06-failure-recovery/failure-recovery.json|postToolUseFailure|fixtures/events/postToolUseFailure-permission-denied.json|context:ask the user
+solutions/06-failure-recovery/failure-recovery.json|postToolUse|fixtures/events/postToolUse-read.json|none
+solutions/07-session-recovery/session-recovery.json|sessionStart|fixtures/events/sessionStart-resume.json|empty
+solutions/07-session-recovery/session-recovery.json|preCompact|fixtures/events/preCompact.json|empty
+solutions/07-session-recovery/session-recovery.json|sessionStart|fixtures/events/sessionStart-new.json|empty
+solutions/07-session-recovery/session-recovery.json|sessionStart|fixtures/events/sessionStart-resume.json|context:Branch:
+solutions/08-notifications/notifications.json|agentStop|fixtures/events/agentStop.json|empty

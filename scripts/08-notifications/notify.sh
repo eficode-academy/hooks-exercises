@@ -1,15 +1,7 @@
 #!/usr/bin/env bash
-set -euo pipefail
-if ! command -v jq >/dev/null 2>&1; then
-  printf 'Notification skipped: jq is required.\n' >&2
-  printf '{}\n'
-  exit 2
-fi
-input=$(cat)
-if ! printf '%s' "$input" | jq -e 'type == "object"' >/dev/null 2>&1; then
-  printf 'Notification skipped: expected a JSON event object.\n' >&2
-  printf '{}\n'
-  exit 2
-fi
+# agentStop hook: ring the terminal bell when the agent finishes.
+# Reads:   the event JSON on stdin (not needed, so it is discarded).
+# Returns: {} (no decision). The bell goes to stderr so stdout stays valid JSON.
+cat > /dev/null
 printf '\a' >&2
-printf '{}\n'
+echo '{}'

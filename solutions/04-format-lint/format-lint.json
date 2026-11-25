@@ -4,16 +4,10 @@
     "postToolUse": [
       {
         "type": "command",
-        "matcher": "edit|create|apply_patch",
         "bash": "bash scripts/04-format-lint/after-edit.sh",
         "powershell": "pwsh -NoProfile -File scripts/04-format-lint/after-edit.ps1",
-        "timeoutSec": 25,
-        "env": {
-          "DEMO_DIR": "demo-app",
-          "FORMAT_ON_EDIT": "true",
-          "LINT_ON_EDIT": "true",
-          "CHECK_TIMEOUT_SEC": "10"
-        }
+        "matcher": "edit|create|apply_patch",
+        "timeoutSec": 30
       }
     ]
   }

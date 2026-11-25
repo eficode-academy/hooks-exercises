@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-# preToolUse: edit/create path (validated filePath alias), or standard apply_patch input/patch.
-# PROTECTED_PATHS is a semicolon-delimited exact file list, relative to event.cwd.
-# Unrelated tools return {}; malformed supported edit payloads are denied.
-# Lexical guard only: symlinks, shell writes, and alternative edit tools are not sandboxed.
-set -u
-fail() { printf 'protect-files: %s\n' "$1" >&2; printf '{}\n'; exit 2; }
-command -v jq >/dev/null 2>&1 || fail 'jq is required.'
-input=$(cat) || fail 'Cannot read hook input.'
-script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || fail 'Cannot locate hook files.'
-cwd=$(printf '%s' "$input" | jq -er 'select(type == "object") | .cwd | select(type == "string" and length > 0)') ||
-  fail 'Expected an object with an absolute cwd.'
-[[ "$cwd" = /* || "$cwd" =~ ^[A-Za-z]:[/\\] ]] || fail 'cwd must be absolute.'
-[[ -d "$cwd" ]] || fail 'cwd must be an existing directory.'
-printf '%s' "$input" | jq -c --arg protected "${PROTECTED_PATHS-demo-app/config/production.json}" \
-  -f "$script_dir/protect-files.jq" || fail 'Cannot parse hook input.'
+# preToolUse guard for file-editing tools (edit, create, apply_patch).
+# Reads:   the event JSON on stdin; looks at toolArgs.path (or the patch text for apply_patch).
+# Env:     PROTECTED_PATHS, ";"-separated list (default demo-app/config/production.json).
+# Returns: a deny decision if the target contains a protected path, otherwise {} (no decision).
+input=$(cat)
+target=$(echo "$input" | jq -r '.toolArgs | (.path // .filePath // .input // .patch // empty)')
+target=${target//\\//}
+IFS=';' read -ra protected <<< "${PROTECTED_PATHS:-demo-app/config/production.json}"
+for p in "${protected[@]}"; do
+  case "$target" in
+    *"$p"*)
+      echo "{\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"$p is protected. Edit another file or ask a human.\"}"
+      exit 0 ;;
+  esac
+done
+echo '{}'

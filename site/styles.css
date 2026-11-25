@@ -49,6 +49,9 @@ progress::-moz-progress-bar { background: var(--accent); border-radius: 9px; }
 .lesson[aria-current] { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); font-weight: 650; }
 .lesson-number { display: grid; flex: 0 0 23px; width: 23px; height: 23px; place-items: center; border: 1px solid var(--border); border-radius: 50%; color: var(--muted); font-size: 11px; }
 .lesson.done .lesson-number { border-color: var(--success); background: var(--success); color: var(--surface); }
+.lesson-level { margin-left: auto; padding: 1px 7px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); font-size: 11px; font-weight: 500; }
+.lesson-level.core { border-color: var(--accent); color: var(--accent); }
+.lesson-level + .lesson-time { margin-left: 0; }
 .lesson-time { margin-left: auto; color: var(--muted); white-space: nowrap; font-size: 12px; font-weight: 400; }
 .side-footer { margin-top: 28px; padding: 19px 9px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
 .main { width: min(100%, 1030px); min-width: 0; padding: 35px clamp(24px, 5vw, 72px) 90px; }

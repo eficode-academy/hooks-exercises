@@ -104,6 +104,12 @@ function renderNavigation() {
     const title = document.createElement("span");
     title.textContent = page.title;
     link.append(number, title);
+    if (page.level) {
+      const level = document.createElement("span");
+      level.className = `lesson-level ${page.level}`;
+      level.textContent = page.level === "core" ? "Core" : "Stretch";
+      link.append(level);
+    }
     if (page.minutes) {
       const duration = document.createElement("span");
       duration.className = "lesson-time";
@@ -244,7 +250,9 @@ async function loadRoute(event) {
     if (!active) throw new Error("Unknown lesson. Choose a lesson in the navigation.");
     byId("breadcrumb").textContent = `${config.title} / ${active.title}`;
     const part = config.lessons.indexOf(active);
-    byId("step-label").textContent = part < 0 ? `${config.lessons.reduce((sum, page) => sum + page.minutes, 0)} minutes / Self-paced` : `Part ${part + 1} of ${config.lessons.length} / ${active.minutes} minutes`;
+    const coreMinutes = config.lessons.filter((page) => page.level === "core").reduce((sum, page) => sum + page.minutes, 0);
+    const label = active.level ? `${active.level === "core" ? "Core" : "Stretch"} / ` : "";
+    byId("step-label").textContent = part < 0 ? `Core path about ${coreMinutes} minutes / Stretch topics optional / Self-paced` : `${label}Part ${part + 1} of ${config.lessons.length} / ${active.minutes} minutes`;
     content.textContent = "Loading lesson...";
     const markdown = await readFile(new URL(active.file, contentRoot), pending.signal);
     if (currentRevision !== revision) return;

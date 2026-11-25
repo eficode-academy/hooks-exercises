@@ -1,0 +1,10 @@
+{
+  "sessionId": "exercise-session",
+  "timestamp": 1794492002000,
+  "cwd": ".",
+  "toolName": "bash",
+  "toolArgs": {
+    "command": "git push --force origin main",
+    "description": "SYNTHETIC DATA ONLY: never execute this command"
+  }
+}

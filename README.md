@@ -1,69 +1,65 @@
 # GitHub Copilot hooks: configuration-first exercises
 
-Learn how hooks are created, called, and used by **writing hook configurations**,
-not shell scripts. All Bash and PowerShell helpers are supplied and complete.
-Your tasks are choosing events, commands, matchers, environment options, and
-timeouts, then proving that your configuration does what you intended.
+A coding agent follows the rules you give it most of the time. A **hook** makes
+a rule hold **every** time: a small script the agent runtime calls at fixed
+moments (session start, before a tool runs, when the agent tries to finish).
+In a regulated setting such as a bank, that is the difference between "we asked
+the agent not to touch production config" and "it cannot".
 
-Work independently in a disposable checkout. Allow about **two hours** to
-complete setup and all seven topics, excluding installation; choose only the
-topics useful to you if you prefer. No hooks are enabled when you open this
-repository: configurations in `solutions/` are reference answers, not startup
-hooks.
+You write the hook **configuration** (JSON: which event, which command, which
+options) and prove it works. The scripts are supplied and short (10-25 lines
+each): skim one, all you need to know is *stdin in, JSON out*. You write no
+shell code and install no packages.
 
-## Exercises: choose a topic
+## Pick your path
 
-| Exercise | Time | Configuration task |
-| --- | ---: | --- |
-| [00 · Setup and anatomy](exercises/00-setup.md) | 15 min | Understand the format and verify the demo baseline |
-| [01 · Activity log](exercises/01-activity-log.md) | 15 min | Subscribe to lifecycle events and observe calls |
-| [02 · Session context](exercises/02-session-context.md) | 10 min | Inject useful context at session/subagent start |
-| [03 · Guardrails](exercises/03-guardrails.md) | 20 min | Match selected tools and configure narrow checks |
-| [04 · Format and lint](exercises/04-format-lint.md) | 15 min | Run scoped feedback after edits |
-| [05 · Quality gate](exercises/05-quality-gate.md) | 20 min | Check formatting, lint, and tests before finishing |
-| [06 · Failure recovery](exercises/06-failure-recovery.md) | 15 min | Give the agent recovery guidance after failed tool calls |
-| [07 · Session recovery](exercises/07-session-recovery.md) | 10 min | Save a small checkpoint and supply it on resume |
+| | Exercise | Time | The problem it solves |
+| --- | --- | ---: | --- |
+| **Core** | [00 · Setup and anatomy](exercises/00-setup.md) | 10 min | A safe workspace and the shape of a hook |
+| **Core** | [01 · Activity log](exercises/01-activity-log.md) | 15 min | Compliance needs an audit trail of agent actions |
+| **Core** | [02 · Session context](exercises/02-session-context.md) | 10 min | Every session needs the house rules |
+| **Core** | [03 · Guardrails](exercises/03-guardrails.md) | 20 min | The agent must not edit production config or force-push |
+| Stretch | [04 · Check after edits](exercises/04-format-lint.md) | 15 min | Catch leftovers right after each edit |
+| Stretch | [05 · Quality gate](exercises/05-quality-gate.md) | 15 min | "Done" means the check passes |
+| Stretch | [06 · Failure recovery](exercises/06-failure-recovery.md) | 10 min | Stop the agent guessing after a failure |
+| Stretch | [07 · Session recovery](exercises/07-session-recovery.md) | 10 min | Resume work with the right context |
+| Stretch | [Extras](#extras-and-reference) | 10 min each | Notifications, personal hooks, agent hooks, secret guard |
 
-Setup (00) is the shared prerequisite; the numbers identify topics, not a
-required order. After setup, choose any of the seven hook topics (01–07)—you
-do not need to complete them all, and no topic requires completing another.
-For an introduction to event delivery and diagnostics, start with the optional
-activity log (01); otherwise, choose the topic that matches what you want to
-explore. Session recovery (07) can optionally include the quality gate's last
-check result (05) when both configurations use the same state directory.
-Each exercise includes offline fixture calls, suggested live prompts, expected
-observations, a configuration-only stretch, and instructions to disable/reuse it.
-Write each JSON file from blank before comparing with `solutions/NN-name/name.json`.
-Validate your own file with `tests/validate-configs.mjs` and test it offline with
-`tests/try-hook.mjs`; setup explains the commands. There are no script-writing
-TODOs.
+**The core path (00-03) takes about 55 minutes.** Finishing it beats clicking
+through everything. After setup pick whatever interests you; no exercise needs
+another one. Every exercise has the same shape: **Problem, Task, Check.**
+
+Write each JSON file from blank, then compare with `solutions/NN-name/`. Test
+it offline with `scripts/try-hook` (the setup exercise explains it) and live in a
+Copilot session. No hooks are active until you save a file in `.github/hooks/`;
+`solutions/` holds reference answers only.
 
 ## What you need
 
-- Git, Node.js 22+, npm, and either Bash with `jq` or PowerShell 7.
-- GitHub Copilot CLI or VS Code's **Copilot** session target, in a trusted
-  workspace where organization policy allows hooks.
-- A disposable checkout; do not use production files or real secrets.
+- Git, plus **Bash with `jq`** or **PowerShell 7 (`pwsh`)**.
+- GitHub Copilot CLI (or VS Code with the **Copilot** session target) in a
+  trusted workspace where your organization allows hooks.
+- A disposable checkout. No production files, no real secrets.
 
-`demo-app/` is a small integer-cents cart/pricing project with Node tests,
-ESLint, and Prettier. It makes hook feedback visible without building an app.
-Install its dependencies during [setup](exercises/00-setup.md).
+Run `bash scripts/preflight.sh` (or `pwsh -File scripts/preflight.ps1`) to check.
+Prefer not to install anything? Open the repository in the **dev container**
+(`.devcontainer/`): it includes Bash, `jq`, PowerShell, Git, GitHub CLI and
+the Copilot CLI.
+
+`demo-app/` is a tiny integer-cents cart. Its `check.sh` / `check.ps1` is a
+stand-in for your team's tests; swap in your own command whenever you like.
 
 ## Extras and reference
 
-- [Personal hooks and portability](exercises/extras/personal-hooks.md)
-- [Notifications](exercises/extras/notifications.md)
-- [Agent-scoped hooks](exercises/extras/agent-scoped-hooks.md)
-- [A limited secret-check experiment](exercises/extras/secret-guard.md)
+- Extras: [notifications](exercises/extras/notifications.md),
+  [personal hooks](exercises/extras/personal-hooks.md),
+  [agent-scoped hooks](exercises/extras/agent-scoped-hooks.md),
+  [limited secret guard](exercises/extras/secret-guard.md)
 - [Events cheat sheet](docs/events.md), [troubleshooting](docs/troubleshooting.md),
-  [compatibility and verification](docs/compatibility.md), [sources](docs/sources.md)
+  [compatibility and what offline checks prove](docs/compatibility.md),
+  [sources](docs/sources.md)
 
-Selected Bash/macOS effects have been observed in CLI 1.0.105; see the
-[evidence matrix](docs/compatibility.md#recorded-live-observations).
-**Offline script checks are not proof of live hook delivery.** Client versions,
-policies, tool names, and argument shapes matter. Record what you actually
-observe; an absent event is a diagnostic finding, not success. Hooks are not a
-tamper-proof security boundary and do not replace permissions, CI, or review.
-
-The learning material is original, with attribution in [sources](docs/sources.md).
-No license is selected; confirm rights and choose one before redistribution.
+Hooks complement permissions, CI and code review; they are not a tamper-proof
+security boundary. The learning material is original, with attribution in
+[sources](docs/sources.md). No license is selected; confirm rights and choose one
+before redistribution.

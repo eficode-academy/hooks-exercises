@@ -1,39 +1,37 @@
-# Extra · A limited secret-check experiment
+# Extra · A limited secret guard
 
-## Goal / events
+**Stretch · about 10 minutes**
 
-Reason about a narrow pre-tool guard without introducing real secrets or
-claiming comprehensive secret protection.
+## Problem
 
-## Read / task
+Developers keep `.env` files next to code. A bank does not want an agent
+rewriting a file that holds credentials. The file guard from exercise 03 already
+blocks edits to a list of paths; point it at "secret" files.
 
-Reuse `scripts/03-guardrails/protect-files.sh` / `protect-files.ps1`, not a new
-script. Create a separate `preToolUse` configuration with the file-tool matcher
-and set `PROTECTED_PATHS` to a **harmless exercise-only path** that you create,
-such as `demo-app/config/secret-demo.json`. Put only a dummy marker there.
+## Task
 
-This checks paths, not secret contents. It does not inspect arbitrary commands,
-network requests, logs, already-read context, or every tool payload. Do not use
-real `.env` files, access tokens, credentials, or live secret stores.
+Create a harmless practice file with a dummy marker, never a real secret:
 
-## Offline / live check
+```bash
+echo '{"marker": "dummy"}' > demo-app/config/secret-demo.json
+```
 
-Adapt a synthetic protected-file payload to name your harmless path; pipe it
-to the supplied guard using exercise 03's command pattern.
+Write `.github/hooks/secret-guard.json`: a `preToolUse` entry with
+`matcher: "edit|create|apply_patch"`, the `protect-files` commands from
+exercise 03, and `"env": { "PROTECTED_PATHS": "demo-app/config/secret-demo.json;demo-app/.env.example" }`.
 
-| Prompt | Event / expected decision |
-| --- | --- |
-| “Using a direct file edit, change the dummy marker in demo-app/config/secret-demo.json. Stop if denied.” | Matching `preToolUse`; denial only for supported tools/shapes |
-| “Read demo-app/.env.example without editing it.” | Read remains outside the edit matcher; no secret-protection claim |
+## Check
 
-If configured, use the optional activity log to confirm matching; otherwise
-check available hook diagnostics. Preserve the harmless file if the guard did
-not run. Do not ask for bypasses or destructive operations.
+Copy `fixtures/events/preToolUse-edit-protected.json`, change its `path` to
+`demo-app/config/secret-demo.json`, and run it through `try-hook` with your new
+config. Expect a deny decision. Live: *"Change the marker in demo-app/config/secret-demo.json
+using a direct edit. If denied, stop."*
 
-## Configuration-only stretch / disable / reuse
+This checks **paths**, not contents. It does not see shell commands, reads, or
+anything already in the agent's context. Use permissions, secret scanning and
+review for real protection.
 
-Add a second harmless path via the semicolon-separated environment option.
-Remove this extra JSON and restart to disable; remove only your dummy file
-after preserving unrelated changes. For real secret protection use appropriate
-permissions, approved secret scanning, and review — this exercise is a limited
-accidental-edit guard, not data-loss prevention.
+## Stretch
+
+Delete the practice file when you are done (`rm demo-app/config/secret-demo.json`)
+and remove the extra JSON from `.github/hooks/`.

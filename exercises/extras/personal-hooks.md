@@ -1,44 +1,41 @@
-# Extra · Personal hooks and portability
+# Extra · Personal hooks
 
-## Goal / events
+**Stretch · about 10 minutes**
 
-Reuse a reviewed configuration outside this checkout. Start with `sessionStart`
-context or metadata observation, not a guard or automatic edit.
+## Problem
 
-## Read / task
+Some hooks are yours, not the team's: your own activity log, your own bell. They
+should follow you into every repository without being committed to any of them.
 
-Read your client's current user-level hook-location documentation in
-[sources](../../docs/sources.md); this exercise does not assume a universal
-personal configuration directory. Review trust and organization policy.
+## Task
 
-Write a configuration from blank for that supported location. Use **absolute,
-properly quoted script paths** because another repository's working directory
-will not contain this repository's `scripts/` folder. Keep the helper folder
-and its shared dependencies together. An absolute helper path alone does not
-make project-relative options portable: set `DEMO_DIR` to the intended absolute
-demo directory and choose absolute `HOOK_LOG_DIR` / `HOOK_STATE_DIR` when needed.
-Do not accidentally run demo checks against an unrelated project.
+Find where your client reads user-level hooks (see [sources](../../docs/sources.md);
+the location is client-specific). Write a configuration there that runs
+`log.sh` / `log.ps1` from this checkout. Other repositories do not contain this
+folder, so use **absolute, quoted** script paths, and set `HOOK_LOG_DIR` to an
+absolute folder so logs from different projects do not mix with this one.
 
-## Offline / live check
+## Check
 
-Test a reviewed scratch JSON containing the absolute helper command with
-`node tests/validate-configs.mjs PATH-TO-YOUR-JSON`, then
-`node tests/try-hook.mjs PATH-TO-YOUR-JSON sessionStart fixtures/events/sessionStart-new.json --shell bash`
-from this checkout (`--shell powershell` for that track). The runner resolves
-the fixture's relative `cwd`; do not pipe it directly to a helper that requires
-an absolute live-payload `cwd`. This check does not install personal hooks.
+Test the file offline from this checkout. Use a scratch copy of the config with
+the same commands, because `try-hook` takes any path:
 
-| Prompt/action | Event / expected artifact |
-| --- | --- |
-| Start a disposable session and ask which demo checks are available | Configured `sessionStart`; metadata and context if supported |
-| Start an unrelated project with this personal configuration disabled | No personal helper record or context |
+**Bash**
 
-Use the activity observer to identify duplicates: repository and personal hooks
-can coexist. Keep personal paths private; do not commit them to shared JSON.
+```bash
+bash scripts/try-hook.sh solutions/01-activity-log/activity-log.json sessionStart fixtures/events/sessionStart-new.json
+```
 
-## Configuration-only stretch / disable / reuse
+**PowerShell**
 
-Separate a personal metadata log from the repository log without script edits.
-Remove only your personal registration and start a fresh session to disable.
-For wider reuse, choose genuinely project-appropriate helpers; `DEMO_DIR` is not
-a discovery system for arbitrary project tooling.
+```powershell
+pwsh -File scripts/try-hook.ps1 solutions/01-activity-log/activity-log.json sessionStart fixtures/events/sessionStart-new.json
+```
+
+Live: start a session in an unrelated disposable folder and look for a line in
+your absolute log folder. Repository and personal hooks can both run, so check
+the log for duplicates. Never commit personal paths to shared JSON.
+
+## Stretch
+
+Disable the personal hook and confirm the unrelated project no longer logs.

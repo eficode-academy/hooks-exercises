@@ -4,23 +4,23 @@
     "preToolUse": [
       {
         "type": "command",
-        "matcher": "edit|create|apply_patch",
         "bash": "bash scripts/03-guardrails/protect-files.sh",
         "powershell": "pwsh -NoProfile -File scripts/03-guardrails/protect-files.ps1",
-        "timeoutSec": 5,
+        "matcher": "edit|create|apply_patch",
         "env": {
           "PROTECTED_PATHS": "demo-app/config/production.json"
-        }
+        },
+        "timeoutSec": 5
       },
       {
         "type": "command",
-        "matcher": "bash|powershell",
         "bash": "bash scripts/03-guardrails/guard-commands.sh",
         "powershell": "pwsh -NoProfile -File scripts/03-guardrails/guard-commands.ps1",
-        "timeoutSec": 5,
+        "matcher": "bash|powershell",
         "env": {
           "GUARD_MODE": "deny"
-        }
+        },
+        "timeoutSec": 5
       }
     ]
   }
